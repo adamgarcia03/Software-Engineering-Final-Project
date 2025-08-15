@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 import sqlite3
+from db_setup import get_db_path
 
-DB_PATH = "db/app.db"
+DB_PATH = get_db_path()
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -14,16 +15,20 @@ def show_login():
 
     tk.Label(root, text="Login", font=("Helvetica", 16)).pack(pady=10)
 
-    username_entry = tk.Entry(root)
-    username_entry.pack(pady=5)
-    username_entry.insert(0, "Username")
+    username_frame = tk.Frame(root)
+    username_frame.pack(pady=5)
+    tk.Label(username_frame, text="Username:", width=10, anchor="e").pack(side=tk.LEFT)
+    username_entry = tk.Entry(username_frame)
+    username_entry.pack(side=tk.LEFT)
 
-    password_entry = tk.Entry(root, show="*")
-    password_entry.pack(pady=5)
-    password_entry.insert(0, "Password")
+    password_frame = tk.Frame(root)
+    password_frame.pack(pady=5)
+    tk.Label(password_frame, text="Password:", width=10, anchor="e").pack(side=tk.LEFT)
+    password_entry = tk.Entry(password_frame, show="*")
+    password_entry.pack(side=tk.LEFT)
 
     def login():
-        username = username_entry.get()
+        username = username_entry.get().strip()
         password = password_entry.get()
 
         conn = get_connection()

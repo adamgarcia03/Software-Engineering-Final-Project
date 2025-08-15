@@ -1,8 +1,11 @@
 import tkinter as tk
 from tkinter import messagebox
 import sqlite3
+from db_setup import get_db_path
+from tkcalendar import DateEntry
+from datetime import date
 
-DB_PATH = "db/app.db"
+DB_PATH = get_db_path()
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -10,29 +13,36 @@ def get_connection():
 def open_bulletin():
     win = tk.Toplevel()
     win.title("Bulletin Board")
-    win.geometry("500x450")
+    win.geometry("520x520")
 
-    entry = tk.Entry(win, width=50)
+    tk.Label(win, text="Date").pack()
+    date_picker = DateEntry(win, width=16, background="white", foreground="black", borderwidth=1)
+    date_picker.pack(pady=4)
+
+    entry = tk.Entry(win, width=54)
     entry.pack(pady=10)
 
-    board = tk.Listbox(win, width=60)
+    board = tk.Listbox(win, width=66, height=16)
     board.pack()
 
     def load_data():
         board.delete(0, tk.END)
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, content FROM bulletin")
+        cursor.execute("SELECT content, day FROM bulletin ORDER BY day DESC")
         for row in cursor.fetchall():
-            board.insert(tk.END, f"{row[0]} - {row[1]}")
+            content, day = row
+            prefix_date = f"[{day}] " if day else ""
+            board.insert(tk.END, f"{prefix_date}{content}")  
         conn.close()
 
     def post():
-        text = entry.get()
+        text = entry.get().strip()
         if text:
+            day_iso = date_picker.get_date().isoformat()
             conn = get_connection()
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO bulletin (content) VALUES (?)", (text,))
+            cursor.execute("INSERT INTO bulletin (content, day) VALUES (?, ?)", (text, day_iso))
             conn.commit()
             conn.close()
             load_data()
@@ -41,44 +51,49 @@ def open_bulletin():
     def delete():
         try:
             selected = board.get(board.curselection())
-            post_id = selected.split(" - ")[0]
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM bulletin WHERE id=?", (post_id,))
-            conn.commit()
-            conn.close()
-            load_data()
-            entry.delete(0, tk.END)
-        except:
+            text_only = " - ".join(selected.split("] ")[1:]).strip()
+        except Exception:
             messagebox.showerror("Error", "Select a post to delete.")
+            return
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM bulletin WHERE content=?", (text_only,))
+        conn.commit()
+        conn.close()
+        load_data()
+        entry.delete(0, tk.END)
 
     def edit():
         try:
             selected = board.get(board.curselection())
-            content = selected.split(" - ", 1)[1]
+            text_only = " - ".join(selected.split("] ")[1:]).strip()
             entry.delete(0, tk.END)
-            entry.insert(0, content)
-        except:
+            entry.insert(0, text_only)
+        except Exception:
             messagebox.showerror("Error", "Select a post to edit.")
 
     def update():
         try:
             selected = board.get(board.curselection())
-            post_id = selected.split(" - ")[0]
-            new_text = entry.get()
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute("UPDATE bulletin SET content=? WHERE id=?", (new_text, post_id))
-            conn.commit()
-            conn.close()
-            load_data()
-            entry.delete(0, tk.END)
-        except:
+            old_text = " - ".join(selected.split("] ")[1:]).strip()
+        except Exception:
             messagebox.showerror("Error", "Select a post to update.")
+            return
+        new_text = entry.get().strip()
+        new_day = date_picker.get_date().isoformat()
+        if not new_text:
+            messagebox.showerror("Error", "Content cannot be empty.")
+            return
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE bulletin SET content=?, day=? WHERE content=?", (new_text, new_day, old_text))
+        conn.commit()
+        conn.close()
+        load_data()
+        entry.delete(0, tk.END)
 
     tk.Button(win, text="Post", command=post).pack(pady=2)
     tk.Button(win, text="Edit Selected", command=edit).pack(pady=2)
     tk.Button(win, text="Update Edited", command=update).pack(pady=2)
     tk.Button(win, text="Delete", command=delete).pack(pady=2)
-
     load_data()

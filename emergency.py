@@ -3,7 +3,7 @@ import tkinter as tk
 def open_emergency():
     win = tk.Toplevel()
     win.title("Emergency & Quick Access")
-    win.geometry("400x250")
+    win.geometry("400x260")
 
     tk.Label(win, text="Emergency Contacts", font=("Arial", 16)).pack(pady=10)
 

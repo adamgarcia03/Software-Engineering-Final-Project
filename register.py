@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 import sqlite3
+from db_setup import get_db_path
 
-DB_PATH = "db/app.db"
+DB_PATH = get_db_path()
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -14,18 +15,21 @@ def show_register():
 
     tk.Label(root, text="Register Account", font=("Helvetica", 16)).pack(pady=10)
 
+    labels = ["Username", "Password", "Email", "Full Name"]
     entries = {}
-    for field in ["Username", "Password", "Email", "Full Name"]:
-        entry = tk.Entry(root)
+
+    for field in labels:
+        tk.Label(root, text=field).pack()
+        show_mask = {"Password": "*"}.get(field)
+        entry = tk.Entry(root, show=show_mask)
         entry.pack(pady=5)
-        entry.insert(0, field)
         entries[field] = entry
 
     def register():
-        username = entries["Username"].get()
+        username = entries["Username"].get().strip()
         password = entries["Password"].get()
-        email = entries["Email"].get()
-        full_name = entries["Full Name"].get()
+        email = entries["Email"].get().strip()
+        full_name = entries["Full Name"].get().strip()
 
         if not username or not password:
             messagebox.showerror("Error", "Username and Password required")
@@ -34,8 +38,10 @@ def show_register():
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO users (username, password, email, full_name) VALUES (?, ?, ?, ?)",
-                        (username, password, email, full_name))
+            cursor.execute(
+                "INSERT INTO users (username, password, email, full_name) VALUES (?, ?, ?, ?)",
+                (username, password, email, full_name)
+            )
             conn.commit()
             messagebox.showinfo("Success", "Registration successful. Please log in.")
             root.destroy()
@@ -47,5 +53,4 @@ def show_register():
             conn.close()
 
     tk.Button(root, text="Register", command=register).pack(pady=10)
-
     root.mainloop()
