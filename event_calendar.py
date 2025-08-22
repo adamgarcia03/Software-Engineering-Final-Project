@@ -31,7 +31,7 @@ def all_events_for_user(username):
 
     events = []
 
-    # Activities for subscribed clubs
+    
     if clubs:
         placeholders = ",".join(["?"] * len(clubs))
         query = f"""
@@ -43,7 +43,6 @@ def all_events_for_user(username):
         cursor.execute(query, clubs)
         events.extend(cursor.fetchall())
 
-    # Bulletin announcements
     cursor.execute("SELECT day, content FROM bulletin")
     events.extend(cursor.fetchall())
 
@@ -58,7 +57,7 @@ def events_on_for_user(username, day_iso):
 
     results = []
 
-    # Activities for that day
+    
     if clubs:
         placeholders = ",".join(["?"] * len(clubs))
         query = f"""
@@ -70,7 +69,7 @@ def events_on_for_user(username, day_iso):
         cursor.execute(query, [day_iso] + clubs)
         results.extend([r[0] for r in cursor.fetchall()])
 
-    # Bulletins for that day
+    
     cursor.execute("SELECT content FROM bulletin WHERE day = ?", (day_iso,))
     results.extend([r[0] for r in cursor.fetchall()])
 
