@@ -26,40 +26,56 @@ def update_subscription(username, club, is_checked):
 
 def all_events_for_user(username):
     clubs = get_user_subscriptions(username)
-    if not clubs:
-        return []
-    placeholders = ",".join(["?"] * len(clubs))
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query = f"""
-        SELECT e.day, e.description
-        FROM events e
-        JOIN activities a ON e.activity_id = a.id
-        WHERE a.club IN ({placeholders})
-        ORDER BY e.day
-    """
-    cursor.execute(query, clubs)
-    events = cursor.fetchall()
+
+    events = []
+
+    # Activities for subscribed clubs
+    if clubs:
+        placeholders = ",".join(["?"] * len(clubs))
+        query = f"""
+            SELECT e.day, e.description
+            FROM events e
+            JOIN activities a ON e.activity_id = a.id
+            WHERE a.club IN ({placeholders})
+        """
+        cursor.execute(query, clubs)
+        events.extend(cursor.fetchall())
+
+    # Bulletin announcements
+    cursor.execute("SELECT day, content FROM bulletin")
+    events.extend(cursor.fetchall())
+
     conn.close()
+    events.sort(key=lambda x: x[0])
     return events
 
 def events_on_for_user(username, day_iso):
     clubs = get_user_subscriptions(username)
-    if not clubs:
-        return []
-    placeholders = ",".join(["?"] * len(clubs))
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query = f"""
-        SELECT e.description
-        FROM events e
-        JOIN activities a ON e.activity_id = a.id
-        WHERE e.day = ? AND a.club IN ({placeholders})
-    """
-    cursor.execute(query, [day_iso] + clubs)
-    rows = cursor.fetchall()
+
+    results = []
+
+    # Activities for that day
+    if clubs:
+        placeholders = ",".join(["?"] * len(clubs))
+        query = f"""
+            SELECT e.description
+            FROM events e
+            JOIN activities a ON e.activity_id = a.id
+            WHERE e.day = ? AND a.club IN ({placeholders})
+        """
+        cursor.execute(query, [day_iso] + clubs)
+        results.extend([r[0] for r in cursor.fetchall()])
+
+    # Bulletins for that day
+    cursor.execute("SELECT content FROM bulletin WHERE day = ?", (day_iso,))
+    results.extend([r[0] for r in cursor.fetchall()])
+
     conn.close()
-    return [r[0] for r in rows]
+    return results
 
 def mmddyyyy_to_iso(s):
     try:
@@ -111,13 +127,15 @@ def open_calendar(username):
 
     def mark_events_on_calendar():
         cal.calevent_remove('all')
-        for day_iso, _desc in all_events_for_user(username):
+        for day_iso, desc in all_events_for_user(username):
             try:
                 y, m, d = map(int, day_iso.split("-"))
-                cal.calevent_create(date(y, m, d), "Event", "activity")
+                tag = "bulletin" if "bulletin" in desc.lower() else "activity"
+                cal.calevent_create(date(y, m, d), desc, tag)
             except Exception:
                 pass
-        cal.tag_config('activity')
+        cal.tag_config('activity', background="lightblue")
+        cal.tag_config('bulletin', background="lightgreen")
 
     def load_events_for_selected_date():
         events_box.delete(0, tk.END)

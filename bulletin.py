@@ -51,7 +51,7 @@ def open_bulletin():
     def delete():
         try:
             selected = board.get(board.curselection())
-            text_only = " - ".join(selected.split("] ")[1:]).strip()
+            text_only = selected.split("] ", 1)[1]
         except Exception:
             messagebox.showerror("Error", "Select a post to delete.")
             return
@@ -66,7 +66,7 @@ def open_bulletin():
     def edit():
         try:
             selected = board.get(board.curselection())
-            text_only = " - ".join(selected.split("] ")[1:]).strip()
+            text_only = selected.split("] ", 1)[1]
             entry.delete(0, tk.END)
             entry.insert(0, text_only)
         except Exception:
@@ -75,7 +75,7 @@ def open_bulletin():
     def update():
         try:
             selected = board.get(board.curselection())
-            old_text = " - ".join(selected.split("] ")[1:]).strip()
+            old_text = selected.split("] ", 1)[1]
         except Exception:
             messagebox.showerror("Error", "Select a post to update.")
             return
