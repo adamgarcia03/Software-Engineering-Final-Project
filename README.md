@@ -2,6 +2,7 @@ Engineering Productivity App
 
 This project is a Tkinter-based desktop application designed for engineers and students to manage tasks, events, announcements, and quick contacts. It combines productivity features with CRUD operations and a user-friendly interface.
 
+
 Features
 
 User Authentication
@@ -25,6 +26,7 @@ Quick access buttons for security, counseling, health services, and other essent
 Reminders
 Notifications for important tasks and events.
 
+
 Technology Stack
 
 Frontend: Python with Tkinter for the GUI
@@ -33,9 +35,11 @@ Backend: SQLite3 for local data persistence
 
 Architecture: Modular design with separate files for activities, bulletin board, calendar, and dashboard
 
+
 Purpose
 
 The application demonstrates CRUD functionality, modular Python development, and database integration in a practical productivity tool. It is suitable for engineers, students, or organizations that need a simple desktop application for task management, announcements, and quick access to critical information.
+
 
 How to Run
 
