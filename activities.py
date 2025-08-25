@@ -145,3 +145,6 @@ def open_activities():
     tk.Button(window, text="Delete Selected", command=delete).pack(pady=2)
 
     load_data()
+
+#Purpose: Manage weekly activities; store in DB and sync with events table for calendar.
+

@@ -41,3 +41,5 @@ def open_reminders():
 
     tk.Button(win, text="Refresh", command=load_reminders).pack(pady=5)
     load_reminders()
+
+#Purpose: Shows upcoming activities and announcements, cleans old ones.

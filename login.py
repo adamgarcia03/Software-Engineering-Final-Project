@@ -54,3 +54,7 @@ def show_login():
     tk.Button(root, text="Register", command=go_register).pack()
 
     root.mainloop()
+
+
+#Purpose: Handles user login; verifies credentials and opens the dashboard.
+

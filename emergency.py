@@ -15,3 +15,6 @@ def open_emergency():
 
     for contact in contacts:
         tk.Button(win, text=contact, width=40).pack(pady=5)
+
+#Purpose: Quick access to emergency contacts.
+

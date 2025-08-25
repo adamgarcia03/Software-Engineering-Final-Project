@@ -54,3 +54,6 @@ def show_register():
 
     tk.Button(root, text="Register", command=register).pack(pady=10)
     root.mainloop()
+
+
+#Purpose: Purpose: Handles new user registration and ensures unique usernames.

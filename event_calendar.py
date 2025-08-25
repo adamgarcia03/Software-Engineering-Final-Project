@@ -146,3 +146,5 @@ def open_calendar(username):
 
     mark_events_on_calendar()
     load_events_for_selected_date()
+
+#Purpose: Shows calendar with all events (activities + bulletins) for the user.

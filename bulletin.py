@@ -97,3 +97,5 @@ def open_bulletin():
     tk.Button(win, text="Update Edited", command=update).pack(pady=2)
     tk.Button(win, text="Delete", command=delete).pack(pady=2)
     load_data()
+
+#Purpose: Manage announcements; they can now automatically appear in the calendar.

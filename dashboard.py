@@ -35,3 +35,7 @@ def show_dashboard(username):
     tk.Button(root, text="Reminders", width=20, command=open_reminders).pack(pady=5)  
 
     root.mainloop()
+
+
+#Purpose: Main UI hub; links to all modules in the app.
+

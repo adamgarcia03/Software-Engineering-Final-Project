@@ -80,3 +80,5 @@ def delete_bulletin(id):
     c.execute("DELETE FROM bulletins WHERE id = ?", (id,))
     conn.commit()
     conn.close()
+
+#Purpose: Older database access functions
